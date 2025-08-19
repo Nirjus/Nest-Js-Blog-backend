@@ -1,9 +1,31 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { BlogService } from './blog.service';
 
 @Controller('blog')
 export class BlogController {
+  constructor(private readonly blogService: BlogService) {}
+
   @Get()
-  findAll() {
-    return 'This will return all the vlogs';
+  getAllBlogs() {
+    return this.blogService.findAll();
+  }
+
+  @Get('search')
+  getBlog(
+    @Query('title')
+    title?: string,
+    @Query('description')
+    description?: string,
+  ) {
+    const blog = this.blogService.findOne(title, description);
+    return blog;
+  }
+
+  @Get(':id')
+  getBlogById(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
+    return this.blogService.findById(id);
   }
 }
