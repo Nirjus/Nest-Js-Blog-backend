@@ -15,7 +15,7 @@ export class Blog {
   title: string;
 
   @Column({ type: 'text' })
-  content: string;
+  description: string;
 
   @Column()
   authorName: string;
