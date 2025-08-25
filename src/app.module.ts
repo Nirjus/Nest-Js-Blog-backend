@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BlogModule } from './blog/blog.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blog/entities/blog.entity';
-import { ConfigModule } from '@nestjs/config';
+import { User } from './auth/entities/user.entity';
+import { AuthModule } from './auth/auth.module';
+import config from './config/config';
 
 // -> Root module which import all other modules
 
@@ -19,13 +22,15 @@ import { ConfigModule } from '@nestjs/config';
       username: 'postgres',
       password: 'Root',
       database: 'nest-youtube',
-      entities: [Blog], // array of entites that you want to register
+      entities: [Blog, User], // array of entites that you want to register
       synchronize: true, // dev mode
     }),
-    BlogModule,
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [config],
     }),
+    BlogModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
