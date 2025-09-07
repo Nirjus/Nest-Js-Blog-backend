@@ -1,9 +1,14 @@
 import { Repository } from 'typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './entities/blog.entity';
 import { CreateBlogDto } from './dto/createblog.dto';
 import { UpdateBlogDto } from './dto/updateblog.dto';
+import { User, UserRole } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class BlogService {
@@ -37,39 +42,47 @@ export class BlogService {
   ) {}
 
   async findAll(): Promise<Blog[]> {
-    return this.blogRepository.find();
+    return this.blogRepository.find({
+      relations: ['authorName'],
+    });
   }
 
   async findById(id: number): Promise<Blog> {
-    const blog = await this.blogRepository.findOneBy({ id });
+    const blog = await this.blogRepository.findOne({
+      where: { id },
+      relations: ['authorName'],
+    });
     if (!blog) {
       throw new NotFoundException(`Post with id ${id} not found`);
     }
     return blog;
   }
 
-  async create(createBlogDto: CreateBlogDto): Promise<Blog> {
+  async create(createBlogDto: CreateBlogDto, authorName: User): Promise<Blog> {
     const newBlog = this.blogRepository.create({
       title: createBlogDto.title,
       description: createBlogDto.description,
-      authorName: createBlogDto.authorName,
+      authorName: authorName,
     });
 
     return await this.blogRepository.save(newBlog);
   }
 
-  async update(id: number, updateBlogData: UpdateBlogDto): Promise<Blog> {
+  async update(
+    id: number,
+    updateBlogData: UpdateBlogDto,
+    user: User,
+  ): Promise<Blog> {
     const findBlog = await this.findById(id);
+    if (findBlog.authorName.id !== user.id && user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('You can only update your own blogs');
+    }
     if (updateBlogData.title) {
       findBlog.title = updateBlogData.title;
     }
     if (updateBlogData.description) {
       findBlog.description = updateBlogData.description;
     }
-    if (updateBlogData.authorName) {
-      findBlog.authorName = updateBlogData.authorName;
-    }
-
     return this.blogRepository.save(findBlog);
   }
 

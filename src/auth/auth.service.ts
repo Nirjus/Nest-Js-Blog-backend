@@ -4,11 +4,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { JwtService } from '@nestjs/jwt';
-import { User, UserRole } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { RegisterDto } from './dto/register.dto';
 import bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User, UserRole } from './entities/user.entity';
+import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import config from 'src/config/config';
 
@@ -17,9 +17,10 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-
     private jwtService: JwtService,
-  ) {}
+  ) {
+    bcrypt.hash('123456', 10).then(console.log);
+  }
 
   async register(registerDto: RegisterDto) {
     const existingUser = await this.userRepository.exists({

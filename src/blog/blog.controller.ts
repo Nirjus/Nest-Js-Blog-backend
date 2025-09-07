@@ -9,11 +9,17 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { Blog } from './entities/blog.entity';
 import { CreateBlogDto } from './dto/createblog.dto';
 import { UpdateBlogDto } from './dto/updateblog.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth-guard';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { Roles } from 'src/auth/decorators/role.decorator';
+import { UserRole } from 'src/auth/entities/user.entity';
+import { RolesGuard } from 'src/auth/guards/roles-guard';
 
 @Controller('blog')
 export class BlogController {
@@ -32,13 +38,16 @@ export class BlogController {
     return await this.blogService.findById(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createBlog(
     @Body()
     createBlogDto: CreateBlogDto,
+    @CurrentUser()
+    user: any,
   ): Promise<Blog> {
-    return await this.blogService.create(createBlogDto);
+    return await this.blogService.create(createBlogDto, user);
   }
 
   @Put(':id')
@@ -47,10 +56,14 @@ export class BlogController {
     id: number,
     @Body()
     updateBlogDto: UpdateBlogDto,
+    @CurrentUser()
+    user: any,
   ): Promise<Blog> {
-    return await this.blogService.update(id, updateBlogDto);
+    return await this.blogService.update(id, updateBlogDto, user);
   }
 
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(

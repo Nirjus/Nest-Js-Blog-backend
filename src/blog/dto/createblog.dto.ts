@@ -9,6 +9,6 @@ export class CreateBlogDto {
   @IsString({ message: 'Description must not be string' })
   description: string;
 
-  @IsNotEmpty({ message: 'Author name nust not be author name' })
-  authorName: string;
+  // @IsNotEmpty({ message: 'Author name nust not be author name' })
+  // authorName: string;
 }

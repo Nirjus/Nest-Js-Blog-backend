@@ -8,6 +8,7 @@ import { Blog } from './blog/entities/blog.entity';
 import { User } from './auth/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import config from './config/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 // -> Root module which import all other modules
 
@@ -15,6 +16,12 @@ import config from './config/config';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 5,
+      },
+    ]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
