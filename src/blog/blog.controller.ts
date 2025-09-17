@@ -72,4 +72,12 @@ export class BlogController {
   ): Promise<void> {
     return await this.blogService.remove(id);
   }
+
+  @Get('/title/:title')
+  async getBlogByName(
+    @Param('title')
+    title: string,
+  ): Promise<Blog> {
+    return await this.blogService.findByName(title);
+  }
 }

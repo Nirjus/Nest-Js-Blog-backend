@@ -53,11 +53,22 @@ export class BlogService {
       relations: ['authorName'],
     });
     if (!blog) {
-      throw new NotFoundException(`Post with id ${id} not found`);
+      throw new NotFoundException(`Blog with id ${id} not found`);
     }
     return blog;
   }
 
+  async findByName(title: string): Promise<Blog> {
+    const blog = await this.blogRepository.findOne({
+      where: {
+        title: title,
+      },
+    });
+    if (!blog) {
+      throw new NotFoundException(`Blog with title ${title} not found`);
+    }
+    return blog;
+  }
   async create(createBlogDto: CreateBlogDto, authorName: User): Promise<Blog> {
     const newBlog = this.blogRepository.create({
       title: createBlogDto.title,
