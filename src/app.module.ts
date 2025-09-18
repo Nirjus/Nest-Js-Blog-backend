@@ -9,6 +9,7 @@ import { User } from './auth/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import config from './config/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { CacheModule } from '@nestjs/cache-manager';
 
 // -> Root module which import all other modules
 
@@ -22,6 +23,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
         limit: 5,
       },
     ]),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
